@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Http\Requests\api\LoginRequest;
+use App\Http\Requests\api\UpdateProfileRequest;
 use App\Http\Requests\api\UserRequest;
 use App\Models\User;
 use Illuminate\Routing\Controller;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 class UserController extends Controller
 {
    public $successStatus = 200;
+
+   //Handle Login for user
    public function login(LoginRequest $request)
     {
         $dataLogin = [
@@ -45,10 +48,9 @@ class UserController extends Controller
             $this->successStatus); 
         }
 
-
-
     }
-
+    
+    //Handle register for user
     public function register(UserRequest $request)
     {
         $data = $request->all();
@@ -74,6 +76,21 @@ class UserController extends Controller
         } else {
             return response()->json(['errors' => 'error sever'], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+    }
+
+    //Handle update profile for user
+    public function update (UpdateProfileRequest $request, int $id) 
+    {
+        $user = User::findOrFail($id); //Lấy user trong csdl theo id từ request         
+        $dataRequest = $request->all(); //Lấy data request mà client gửi lên 
+
+       
+
+
+
+
+
 
     }
 
