@@ -3,6 +3,7 @@
 namespace App\Http\Requests\api;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -16,28 +17,28 @@ class UpdateProfileRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
+        $userId = $this->route('id'); // Lấy ID user từ route
+
         return [
-            'name' => 'required|string|max:200',
-            'email' => 'required|email|unique:users',
-            'avatar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'phone' => 'required|string|max:15',
-            'address' => 'required|string|max:200'
+            'name' => 'nullable|string|max:200',
+            'email' => ['nullable', 'email', Rule::unique('users', 'email')->ignore($userId)],
+            'password' => 'nullable|min:6',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'phone' => 'nullable|string|max:15',
+            'address' => 'nullable|string|max:200'
         ];
     }
 
     public function messages()
     {
         return [
-            'required' => ':attribute không được để trống !',
-            'max' => ':attribute không được quá :max ký tự !',
-            'avatar' => ':attribute phải là hình ảnh !',
-            'mimes' => ':attribute phải có định dạng như sau: jpeg,png,jpg,gif ',
-            'avatar.max' => ':attribute Maximum file size to upload :max !'
+            'max' => ':attribute không được quá :max ký tự!',
+            'avatar.image' => ':attribute phải là hình ảnh!',
+            'mimes' => ':attribute phải có định dạng như sau: jpeg, png, jpg, gif!',
+            'password.min' => 'Mật khẩu phải có ít nhất :min ký tự!'
         ];
     }
 }
