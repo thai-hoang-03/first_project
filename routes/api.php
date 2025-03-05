@@ -8,6 +8,8 @@ use App\Http\Controllers\UserController;
 Route::post('/login', [UserController::class, 'login']); // Đăng nhập
 Route::post('/register', [UserController::class, 'register']); // Đăng ký
 
+
+
 //API user
 Route::group(['prefix' => 'user'], function () {
     Route::middleware(['auth:sanctum'])->group(function () {
