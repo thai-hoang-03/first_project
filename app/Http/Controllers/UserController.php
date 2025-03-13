@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-
+use Intervention\Image\Facades\Image as Image;
 
 class UserController extends Controller
 {
@@ -60,7 +60,7 @@ class UserController extends Controller
     public function register(UserRequest $request)
     {
         $data = $request->all();
-
+        
         $data['password'] = bcrypt($data['password']);  //Xử lý password
 
         $avatar = $request->hasFile('avatar');    //Kiểm tra xem trong request gửi lên có file avatar hay không
@@ -139,11 +139,6 @@ class UserController extends Controller
         //Nếu có dữ liệu trong biến $dataUpdate thì thực hiện update 
         if (!empty($dataUpdate)) {
             if ($user->update($dataUpdate)) {
-                $fileAvatar = $request->avatar; // Định nghĩa fileAvatar trước khi sử dụng
-                if ($fileAvatar && strpos($fileAvatar, ';')) {
-                    Image::make($fileAvatar)->save(public_path('upload/user/avatar/' . $dataUpdate['avatar']));
-                }
-
                 $token = !empty($dataUpdate['password']) ? $user->createToken('authToken')->plainTextToken : null;
                 return response()->json([
                     'response' => 'update profile success',
@@ -161,4 +156,6 @@ class UserController extends Controller
             'message' => 'không có thay đổi nào cần cập nhật'
         ], JsonResponse::HTTP_OK);
     }
+
+    
 }

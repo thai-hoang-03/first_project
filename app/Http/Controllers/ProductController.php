@@ -1,61 +1,56 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Models\Product;
-use Illuminate\Http\Request;
 use App\Http\Requests\api\ProductRequest;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth ;
+use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {
-    //lấy tất cả sản phẩm
-    public function getAll()
+
+    //Create product 
+    public function store(ProductRequest $request ) 
     {
-        $getData = Product::all();
+        $dataRequest = $request->all();
 
-
-        return response()->json(['data' => $getData]);
-    }
-
-    //Lấy sản phẩm theo ID
-    public function getFollowId($id)
-    {
-        return response()->json(Product::findOrFail($id));
-    }
-
-    //Thêm sản phẩm mới
-    public function addItem(ProductRequest $request)
-    {
-        $product = Product::create($request->all());
-        return response()->json($product, 201);
-    }
-
-    //Cập nhật sản phẩm
-    public function updateItem(ProductRequest $request, $id)
-    {
-        // echo $id;
-
-        $product = Product::findOrFail($id);
-
-        $getData = $request->all();
-
-        // var_dump($getData);
-        // exit;
-
-        if ($product->update($getData)) {
-            return response()->json($product);
-        } else {
-            return response()->json(["error" => "loi update, vui long kiem tra lai"]);
+        if($request->hasFile('image')){
+            $ImageUpload = $this->uploadImageToDirectory($request->file('image'));
+            $dataRequest['image'] = json_encode($ImageUpload);
         }
-        // 
+
+        $dataRequest['id_category'] = $dataRequest['category'];
+        $dataRequest['id_brand'] = $dataRequest['brand'];
+        $dataRequest['company_profile'] = $dataRequest['company'];
+        $dataRequest['id_user'] = Auth::id();
+
+        $newProduct = Product::create($dataRequest);
+        if($newProduct){
+            return response()->json([
+                'response' => 'sucsess',
+                'product' => $newProduct
+            ], JsonResponse::HTTP_OK);
+        }
     }
 
-    //Xoá sản phẩm
-    public function delete($id)
+    public function uploadImageToDirectory($arrImage)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
-        return response()->json(['mess' => 'Finish']);
+        $imageUpload = [];
+        foreach($arrImage as $image){
+            $userId =Auth::id(); //lấy userID hiện tại ra
+            $uploadPath = 'upload/product'.$userId;
+            $nameImg = strtotime(date('Y-m-d H:i:s')).'_'.$image->getClientOriginalName();
+            
+            //kiểm tra xem coi đã có file trong thư mục hay project hay chưa 
+            if(!file_exists(public_path($uploadPath))){
+                mkdir($uploadPath);
+            }
+
+            //Lưu file ảnh vào public
+            $image->move(public_path($uploadPath), $nameImg);
+            $imageUpload[] = $uploadPath . '/' . $nameImg;
+        }
+        return $imageUpload;
     }
+
 }

@@ -23,18 +23,26 @@ class productRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:20',
-            'price' => 'required|integer|min:0',
-            'description' => 'required|string|max:1000'
+            'category' => 'required',
+            'brand' => 'required',
+            'name' => 'required|max:50|min:5',
+            'image' => 'required',
+            'image.*' => 'image|mimes:jpeg,png,jpg',
+            'price' => 'required|integer',
+            'description' => 'required',
+            'company' => 'required'
         ];
     }
 
     public function messages()
     {
         return [
-            'required' => ':attribute không được để trống !',
-            'max' => ':attribute không được quá :max ký tự ',
-            'min' => ':attribute không được nhỏ hơn :min'
+            'required'=>':attribute Không được để trống',
+            'max'=>':attribute cannot more than :max character',
+            'min'=>':attribute cannot less than :min character',            
+            'integer' =>':attribute only accepts number',
+            'image' => 'Image only allow image file',
+            'mimes' => 'Image must be a file of type: :values',
         ];
     }
 }
